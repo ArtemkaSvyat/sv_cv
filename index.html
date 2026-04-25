@@ -2,110 +2,103 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Портфолио | Unreal Engine Developer</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* Чтобы случайно не выделять текст при кликах */
         }
 
         body {
             width: 100vw;
             height: 100vh;
-            overflow: hidden; /* Убираем скролл */
+            overflow: hidden;
             font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
             background: radial-gradient(circle at 20% 30%, #0a0a0a, #000000);
             color: #eaeaea;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
-        /* Главный контейнер — занимает всю высоту */
+        /* Главный контейнер — строго по высоте экрана */
         .app {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 2rem 3rem 1.5rem 3rem;
-            position: relative;
+            padding: 1.2rem 1.5rem 0.8rem 1.5rem;
+            gap: 0.8rem;
         }
 
-        /* === ВЕРХНЯЯ ОБЛАСТЬ (Текст + Слайдер) === */
+        /* === ВЕРХНЯЯ ОБЛАСТЬ === */
         .top-section {
             text-align: center;
-            z-index: 2;
+            flex-shrink: 0;
         }
 
         .main-title {
-            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.4rem);
             font-weight: 500;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             background: linear-gradient(135deg, #ffffff, #aaaaaa);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 1.8rem;
-            text-shadow: 0 0 15px rgba(0,115,230,0.3);
+            margin-bottom: 0.8rem;
         }
 
-        /* Слайдер-переключатель (стилизованный под "ползунок") */
         .slider-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 2rem;
         }
 
         .category-slider {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.4rem;
             background: rgba(20, 20, 30, 0.7);
             backdrop-filter: blur(10px);
-            padding: 0.5rem;
-            border-radius: 60px;
+            padding: 0.35rem;
+            border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .cat-btn {
-            padding: 0.7rem 1.8rem;
+            padding: 0.4rem 1rem;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 1rem;
-            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             background: transparent;
             color: #ccc;
             border: none;
             font-family: inherit;
+            white-space: nowrap;
         }
 
         .cat-btn.active {
             background: #0073e6;
             color: white;
-            box-shadow: 0 0 12px rgba(0,115,230,0.5);
+            box-shadow: 0 0 8px rgba(0,115,230,0.4);
         }
 
-        .cat-btn:hover:not(.active) {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        /* === ЦЕНТРАЛЬНАЯ ОБЛАСТЬ (виджет-переключатель) === */
+        /* === ЦЕНТРАЛЬНАЯ ОБЛАСТЬ — растягивается на всё свободное место === */
         .content-area {
             flex: 1;
-            min-height: 0;  /* для flex-ограничений */
-            margin: 1rem 0;
+            min-height: 0;
             position: relative;
-            border-radius: 32px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
-            background: rgba(10,10,15,0.4);
+            background: rgba(10,10,15,0.3);
             backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
         .widget {
@@ -113,10 +106,10 @@
             height: 100%;
             display: none;
             opacity: 0;
-            transition: opacity 0.3s ease;
-            padding: 2rem;
-            overflow-y: auto;  /* если контента много — появится скролл внутри виджета, но общий экран не скроллится */
-            gap: 1.5rem;
+            transition: opacity 0.2s ease;
+            padding: 0.8rem;
+            overflow-y: auto;
+            gap: 0.8rem;
         }
 
         .widget.active-widget {
@@ -125,12 +118,11 @@
             opacity: 1;
         }
 
-        /* Стилизация скролла внутри виджета (чтобы не портил дизайн) */
         .widget::-webkit-scrollbar {
-            width: 6px;
+            width: 3px;
         }
         .widget::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.2);
             border-radius: 10px;
         }
         .widget::-webkit-scrollbar-thumb {
@@ -138,113 +130,108 @@
             border-radius: 10px;
         }
 
-        /* Карточки проектов (сетка) */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.8rem;
             width: 100%;
         }
 
         .project-card {
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
-            border-radius: 24px;
+            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.15s ease;
             cursor: pointer;
         }
 
-        .project-card:hover {
-            transform: translateY(-8px);
-            border-color: #0073e6;
-            box-shadow: 0 15px 30px -10px rgba(0,115,230,0.3);
+        .project-card:active {
+            transform: scale(0.98);
         }
 
         .card-img {
             width: 100%;
-            height: 180px;
+            height: 110px;
             background: #111;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 3rem;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            font-size: 2rem;
         }
 
-        /* Заглушки для картинок (потом заменишь на свои фото) */
         .placeholder-img {
             background: linear-gradient(145deg, #1a2634, #0a0f14);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 1.8rem;
             color: #0073e6;
         }
 
         .card-info {
-            padding: 1.2rem;
+            padding: 0.6rem 0.7rem 0.7rem 0.7rem;
         }
 
         .card-info h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+            font-weight: 600;
         }
 
         .card-info p {
-            font-size: 0.85rem;
+            font-size: 0.65rem;
             color: #bbb;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         .tech-badge {
             display: inline-block;
             background: #0073e620;
             border-radius: 20px;
-            padding: 0.2rem 0.7rem;
-            font-size: 0.7rem;
-            margin-top: 0.6rem;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.55rem;
+            margin-top: 0.3rem;
             color: #8fcbff;
         }
 
-        /* Стили для текстового блока / описания */
         .info-text {
-            background: rgba(0,0,0,0.4);
-            border-radius: 28px;
-            padding: 1.5rem;
-            border-left: 4px solid #0073e6;
+            background: rgba(0,0,0,0.35);
+            border-radius: 14px;
+            padding: 0.6rem 1rem;
+            border-left: 3px solid #0073e6;
+            flex-shrink: 0;
         }
 
         .info-text h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
         }
 
-        /* === НИЖНЯЯ ПАНЕЛЬ (навигация + инфо об авторе) === */
+        .info-text p {
+            font-size: 0.7rem;
+            line-height: 1.3;
+        }
+
+        /* === НИЖНЯЯ ПАНЕЛЬ — строго внизу === */
         .bottom-bar {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 1rem;
-            z-index: 2;
-            font-size: 0.85rem;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            padding-top: 0.3rem;
         }
 
         .author-info {
             background: rgba(0,0,0,0.5);
-            padding: 0.5rem 1.2rem;
-            border-radius: 40px;
+            padding: 0.35rem 0.9rem;
+            border-radius: 30px;
             backdrop-filter: blur(5px);
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
+            font-size: 0.65rem;
+            letter-spacing: 0.3px;
         }
 
         .author-info span {
@@ -254,12 +241,14 @@
 
         .nav-links {
             display: flex;
-            gap: 1.8rem;
+            gap: 1rem;
             background: rgba(20,20,30,0.6);
             backdrop-filter: blur(12px);
-            padding: 0.6rem 2rem;
-            border-radius: 50px;
+            padding: 0.35rem 1rem;
+            border-radius: 40px;
             border: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .nav-links a {
@@ -268,37 +257,99 @@
             font-weight: 500;
             transition: 0.2s;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.7rem;
+            white-space: nowrap;
         }
 
-        .nav-links a:hover {
+        .nav-links a:active {
             color: #0073e6;
-            text-shadow: 0 0 6px #0073e6;
         }
 
-        /* Мобильная адаптация (но экран не ломается) */
-        @media (max-width: 700px) {
+        /* iPad и планшеты в портретной ориентации */
+        @media (max-width: 900px) and (orientation: portrait) {
             .app {
-                padding: 1.2rem;
+                padding: 0.8rem 1rem 0.5rem 1rem;
+                gap: 0.5rem;
             }
             .cat-btn {
-                padding: 0.4rem 1rem;
-                font-size: 0.8rem;
+                padding: 0.3rem 0.8rem;
+                font-size: 0.7rem;
             }
             .projects-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 0.6rem;
+            }
+            .card-img {
+                height: 100px;
+            }
+            .widget {
+                padding: 0.6rem;
+            }
+            .info-text h2 {
+                font-size: 0.9rem;
+            }
+            .info-text p {
+                font-size: 0.65rem;
+            }
+            .card-info h3 {
+                font-size: 0.8rem;
+            }
+            .card-info p {
+                font-size: 0.6rem;
+            }
+            .bottom-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.4rem;
             }
             .nav-links {
-                gap: 1rem;
-                padding: 0.4rem 1.2rem;
+                justify-content: center;
+            }
+            .author-info {
+                text-align: center;
+            }
+        }
+
+        /* iPad в ландшафте */
+        @media (max-width: 1200px) and (orientation: landscape) {
+            .app {
+                padding: 0.8rem 1.2rem 0.5rem 1.2rem;
+            }
+            .projects-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.7rem;
+            }
+            .card-img {
+                height: 100px;
+            }
+            .cat-btn {
+                padding: 0.35rem 0.9rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Маленькие телефоны */
+        @media (max-width: 500px) {
+            .category-slider {
+                gap: 0.3rem;
+            }
+            .cat-btn {
+                padding: 0.25rem 0.6rem;
+                font-size: 0.65rem;
+                white-space: normal;
+            }
+            .nav-links {
+                gap: 0.6rem;
+                padding: 0.3rem 0.7rem;
+            }
+            .nav-links a {
+                font-size: 0.65rem;
             }
         }
     </style>
 </head>
 <body>
 <div class="app">
-    <!-- Верхняя часть: заголовок + слайдер-переключатель -->
     <div class="top-section">
         <div class="main-title">
             🎮 РАЗРАБОТКА НА UNREAL ENGINE
@@ -312,28 +363,26 @@
         </div>
     </div>
 
-    <!-- Центральный виджет-переключатель (показывает контент по выбранной категории) -->
     <div class="content-area">
-        <!-- Архитектурная визуализация -->
         <div id="widget-archviz" class="widget active-widget">
             <div class="info-text">
-                <h2>🏛️ Проекты архитектурной визуализации</h2>
-                <p>Реалистичные сцены интерьеров и экстерьеров, динамическое освещение Lumen, трассировка путей. Показаны реальные кейсы для застройщиков.</p>
+                <h2>🏛️ Архитектурная визуализация</h2>
+                <p>Реалистичные сцены, Lumen, трассировка лучей. Кейсы для застройщиков.</p>
             </div>
             <div class="projects-grid">
                 <div class="project-card">
                     <div class="card-img placeholder-img">🌆</div>
                     <div class="card-info">
                         <h3>LUX Penthouse</h3>
-                        <p>Интерактивная презентация пентхауса с панорамным видом. RTX + Lumen.</p>
-                        <div class="tech-badge">UE5 • Lumen • Datasmith</div>
+                        <p>Интерактивная презентация пентхауса. RTX + Lumen.</p>
+                        <div class="tech-badge">UE5 • Lumen</div>
                     </div>
                 </div>
                 <div class="project-card">
                     <div class="card-img placeholder-img">🏢</div>
                     <div class="card-info">
                         <h3>Бизнес-центр "Атлант"</h3>
-                        <p>Визуализация фасадов и lobby, смена материалов в реальном времени.</p>
+                        <p>Визуализация фасадов, смена материалов.</p>
                         <div class="tech-badge">Nanite • Niagara</div>
                     </div>
                 </div>
@@ -341,25 +390,24 @@
                     <div class="card-img placeholder-img">🌿</div>
                     <div class="card-info">
                         <h3>Загородный комплекс</h3>
-                        <p>Ландшафтный дизайн, процедурные леса, динамическая смена дня/ночи.</p>
+                        <p>Ландшафтный дизайн, смена дня/ночи.</p>
                         <div class="tech-badge">PCG • World Partition</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VR -->
         <div id="widget-vr" class="widget">
             <div class="info-text">
                 <h2>🥽 VR / Immersive разработка</h2>
-                <p>Полное погружение: взаимодействие руками, физика объектов, оптимизация под Quest 2/3 и PCVR.</p>
+                <p>Полное погружение, физика объектов, оптимизация под Quest.</p>
             </div>
             <div class="projects-grid">
                 <div class="project-card">
                     <div class="card-img placeholder-img">🕹️</div>
                     <div class="card-info">
                         <h3>VR Showroom</h3>
-                        <p>Виртуальное пространство для демонстрации автомобилей: открытие дверей, смена окраски.</p>
+                        <p>Автосалон в VR: открытие дверей, смена окраски.</p>
                         <div class="tech-badge">OpenXR • Oculus</div>
                     </div>
                 </div>
@@ -367,7 +415,7 @@
                     <div class="card-img placeholder-img">🏛️</div>
                     <div class="card-info">
                         <h3>Музейная экспозиция</h3>
-                        <p>VR-тур по историческому музею с голосовым сопровождением и интерактивными экспонатами.</p>
+                        <p>VR-тур с голосовым сопровождением.</p>
                         <div class="tech-badge">MetaHuman • Audio</div>
                     </div>
                 </div>
@@ -375,25 +423,24 @@
                     <div class="card-img placeholder-img">⚡</div>
                     <div class="card-info">
                         <h3>Тренажёр сварщика</h3>
-                        <p>VR симуляция для обучения рабочих. Физика дуги, реалистичные звуки.</p>
+                        <p>VR симуляция для обучения.</p>
                         <div class="tech-badge">C++ • Networking</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Игры -->
         <div id="widget-games" class="widget">
             <div class="info-text">
-                <h2>🎮 Игровые проекты на Unreal Engine</h2>
-                <p>Gameplay, AI, VFX, Blueprints/C++ — от прототипов до готовых механик. Шутеры, платформеры, RPG элементы.</p>
+                <h2>🎮 Игровые проекты</h2>
+                <p>Gameplay, AI, VFX, Blueprints/C++ от прототипов до механик.</p>
             </div>
             <div class="projects-grid">
                 <div class="project-card">
                     <div class="card-img placeholder-img">🔫</div>
                     <div class="card-info">
                         <h3>Cyber Raid</h3>
-                        <p>Динамичный шутер с тактическим спринтом, системой укрытий и киберпанк эстетикой.</p>
+                        <p>Киберпанк шутер с тактическим спринтом.</p>
                         <div class="tech-badge">GAS • Niagara</div>
                     </div>
                 </div>
@@ -401,15 +448,15 @@
                     <div class="card-img placeholder-img">🧙</div>
                     <div class="card-info">
                         <h3>Echoes of the Void</h3>
-                        <p>Roguelike экшен с процедурными аренами и элементами магии.</p>
-                        <div class="tech-badge">Blueprint • AI Behavior</div>
+                        <p>Roguelike экшен с процедурными аренами.</p>
+                        <div class="tech-badge">Blueprint • AI</div>
                     </div>
                 </div>
                 <div class="project-card">
                     <div class="card-img placeholder-img">🚀</div>
                     <div class="card-info">
                         <h3>Star Harvest</h3>
-                        <p>Космический симулятор с добычей ресурсов и крафтом кораблей.</p>
+                        <p>Космический симулятор с крафтом.</p>
                         <div class="tech-badge">C++ • Multiplayer</div>
                     </div>
                 </div>
@@ -417,22 +464,20 @@
         </div>
     </div>
 
-    <!-- Нижняя панель: информация обо мне + горизонтальная навигация -->
     <div class="bottom-bar">
         <div class="author-info">
-            👨‍💻 <span>Алексей Разработчик</span> • Unreal Engine Generalist | 5+ лет в индустрии
+            👨‍💻 <span>Алексей Разработчик</span> • Unreal Engine Generalist | 5+ лет
         </div>
         <div class="nav-links">
             <a data-nav="about">📄 Обо мне</a>
             <a data-nav="contacts">📬 Контакты</a>
-            <a data-nav="resume">📁 Резюме / GitHub</a>
+            <a data-nav="resume">📁 Резюме</a>
             <a data-nav="showreel">🎬 Showreel</a>
         </div>
     </div>
 </div>
 
 <script>
-    // === ЛОГИКА СЛАЙДЕРА (переключение категорий + виджета) ===
     const catButtons = document.querySelectorAll('.cat-btn');
     const widgets = {
         archviz: document.getElementById('widget-archviz'),
@@ -441,17 +486,12 @@
     };
 
     function switchCategory(categoryId) {
-        // скрыть все виджеты
         Object.values(widgets).forEach(widget => {
-            if (widget) {
-                widget.classList.remove('active-widget');
-            }
+            if (widget) widget.classList.remove('active-widget');
         });
-        // показать выбранный
         if (widgets[categoryId]) {
             widgets[categoryId].classList.add('active-widget');
         }
-        // обновить активную кнопку
         catButtons.forEach(btn => {
             const btnCat = btn.getAttribute('data-category');
             if (btnCat === categoryId) {
@@ -469,72 +509,68 @@
         });
     });
 
-    // === НАВИГАЦИЯ ВНИЗУ (открытие информационных окон через алерты/заглушки, пока что) ===
-    // В будущем ты сможешь заменить на модальные окна или отдельную страницу/секцию, оставив общий макет.
-    // Сейчас я сделаю аккуратные уведомления, чтобы не портить стиль и не скроллить экран.
-    const navItems = document.querySelectorAll('.nav-links a');
-    
     function showInfoMessage(section) {
-        // Используем не alert, а красивое плавающее оповещение (временное)
         const toast = document.createElement('div');
         toast.style.position = 'fixed';
-        toast.style.bottom = '80px';
+        toast.style.bottom = '20px';
         toast.style.left = '50%';
         toast.style.transform = 'translateX(-50%)';
         toast.style.backgroundColor = '#1f1f2ecc';
         toast.style.backdropFilter = 'blur(12px)';
         toast.style.color = '#fff';
-        toast.style.padding = '10px 20px';
+        toast.style.padding = '6px 16px';
         toast.style.borderRadius = '40px';
-        toast.style.borderLeft = `4px solid #0073e6`;
-        toast.style.fontSize = '0.9rem';
+        toast.style.borderLeft = '3px solid #0073e6';
+        toast.style.fontSize = '0.7rem';
         toast.style.zIndex = '9999';
         toast.style.fontWeight = '500';
-        toast.style.boxShadow = '0 8px 20px black';
+        toast.style.boxShadow = '0 4px 15px black';
+        toast.style.whiteSpace = 'nowrap';
         
         switch(section) {
             case 'about':
-                toast.innerHTML = '🧑‍💻 Разработчик Unreal Engine: архитектурная визуализация, VR, геймплей. Люблю оптимизацию и эффекты. (Контакты и резюме — по клику ниже)';
+                toast.innerHTML = '🧑‍💻 Разработчик UE: Архитектура, VR, Геймплей';
                 break;
             case 'contacts':
-                toast.innerHTML = '📧 telegram: @your_unreal_dev | email: dev@unreal-portfolio.com | discord: .unrealdev';
+                toast.innerHTML = '📧 tg: @your_unreal_dev | email: dev@unreal-portfolio.com';
                 break;
             case 'resume':
-                toast.innerHTML = '📄 GitHub: https://github.com/yourname  |  Резюме в PDF (ссылка придёт в личные сообщения)';
+                toast.innerHTML = '📄 GitHub: https://github.com/yourname';
                 break;
             case 'showreel':
-                toast.innerHTML = '🎬 Showreel на YouTube (добавь ссылку позже). Для демки сожми видео и вставь iframe.';
+                toast.innerHTML = '🎬 Showreel будет добавлен позже';
                 break;
-            default: toast.innerHTML = 'Скоро здесь будет подробная информация ✨';
+            default:
+                toast.innerHTML = 'Скоро здесь будет информация';
         }
         document.body.appendChild(toast);
         setTimeout(() => {
             toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 400);
-        }, 2800);
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
     }
 
+    const navItems = document.querySelectorAll('.nav-links a');
     navItems.forEach(link => {
         link.addEventListener('click', (e) => {
+            e.stopPropagation();
             const navKey = link.getAttribute('data-nav');
             if (navKey === 'about') showInfoMessage('about');
             else if (navKey === 'contacts') showInfoMessage('contacts');
             else if (navKey === 'resume') showInfoMessage('resume');
             else if (navKey === 'showreel') showInfoMessage('showreel');
-            else showInfoMessage('default');
         });
     });
 
-    // Небольшая фича: при клике на карточку показываем всплывашку "скоро будет медиа", чтобы ощущалось живо
     const allCards = document.querySelectorAll('.project-card');
     allCards.forEach(card => {
         card.addEventListener('click', () => {
             const projectTitle = card.querySelector('h3')?.innerText || 'проект';
             const notify = document.createElement('div');
-            notify.textContent = `🖼️ Видео / скриншоты для "${projectTitle}" будут добавлены`;
-            notify.style.cssText = 'position:fixed; bottom: 120px; left:20px; background:#0a0a0acc; backdrop-filter:blur(8px); padding:6px 14px; border-radius:28px; font-size:0.75rem; color:#ccc; z-index:9999; border:1px solid #0073e6;';
+            notify.textContent = `🖼️ Скриншоты для "${projectTitle}" будут добавлены`;
+            notify.style.cssText = 'position:fixed; bottom:60px; left:10px; background:#0a0a0acc; backdrop-filter:blur(8px); padding:4px 10px; border-radius:28px; font-size:0.6rem; color:#ccc; z-index:9999; border:1px solid #0073e6;';
             document.body.appendChild(notify);
-            setTimeout(() => { notify.remove(); }, 2000);
+            setTimeout(() => notify.remove(), 1500);
         });
     });
 </script>
